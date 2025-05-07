@@ -1,10 +1,10 @@
 This page provides an overview of **all available configuration options** for WireGuard Portal.
 
-You can supply these configurations in a **YAML** file (e.g. `config.yaml`) when starting the Portal.
-The path of the configuration file defaults to **config/config.yml** in the working directory of the executable.  
-It is possible to override configuration filepath using the environment variable `WG_PORTAL_CONFIG`.
+You can supply these configurations in a **YAML** file when starting the Portal.
+The path of the configuration file defaults to `config/config.yaml` (or `config/config.yml`) in the working directory of the executable.  
+It is possible to override the configuration filepath using the environment variable `WG_PORTAL_CONFIG`.
 For example: `WG_PORTAL_CONFIG=/etc/wg-portal/config.yaml ./wg-portal`.  
-Also, environment variable substitution in config file is supported. Refer to [syntax](https://github.com/a8m/envsubst?tab=readme-ov-file#docs).
+Also, environment variable substitution in the config file is supported. Refer to the [syntax](https://github.com/a8m/envsubst?tab=readme-ov-file#docs).
 
 Configuration examples are available on the [Examples](./examples.md) page.
 
@@ -15,6 +15,7 @@ Configuration examples are available on the [Examples](./examples.md) page.
 core:
   admin_user: admin@wgportal.local
   admin_password: wgportal
+  admin_api_token: ""
   editable_keys: true
   create_default_peer: false
   create_default_peer_on_creation: false
@@ -35,13 +36,15 @@ advanced:
   config_storage_path: ""
   expiry_check_interval: 15m
   rule_prio_offset: 20000
+  route_table_offset: 20000
   api_admin_only: true
 
 database:
   debug: false
-  slow_query_threshold: 0
+  slow_query_threshold: "0"
   type: sqlite
   dsn: data/sqlite.db
+  encryption_passphrase: ""
 
 statistics:
   use_ping_checks: true
@@ -79,6 +82,7 @@ web:
   session_secret: very_secret
   csrf_secret: extremely_secret
   request_logging: false
+  expose_host_info: false
   cert_file: ""
   key_File: ""
 
@@ -221,8 +225,8 @@ If sensitive values (like private keys) should be stored in an encrypted format,
 - **Description:** If `true`, logs all database statements (verbose).
 
 ### `slow_query_threshold`
-- **Default:** 0
-- **Description:** A time threshold (e.g., `100ms`) above which queries are considered slow and logged as warnings. If empty or zero, slow query logging is disabled. Format uses `s`, `ms` for seconds, milliseconds, see [time.ParseDuration](https://golang.org/pkg/time/#ParseDuration).
+- **Default:** "0"
+- **Description:** A time threshold (e.g., `100ms`) above which queries are considered slow and logged as warnings. If zero, slow query logging is disabled. Format uses `s`, `ms` for seconds, milliseconds, see [time.ParseDuration](https://golang.org/pkg/time/#ParseDuration). The value must be a string.
 
 ### `type`
 - **Default:** `sqlite`
@@ -282,7 +286,7 @@ Controls how WireGuard Portal collects and reports usage statistics, including p
 
 ### `listening_address`
 - **Default:** `:8787`
-- **Description:** Address and port for the integrated Prometheus metric server (e.g., `:8787`).
+- **Description:** Address and port for the integrated Prometheus metric server (e.g., `:8787` or `127.0.0.1:8787`).
 
 ---
 
@@ -364,6 +368,10 @@ Below are the properties for each OIDC provider entry inside `auth.oidc`:
 - **Default:** *(empty)*
 - **Description:** A list of additional OIDC scopes (e.g., `profile`, `email`).
 
+#### `allowed_domains`
+- **Default:** *(empty)*
+- **Description:** A list of allowlisted domains. Only users with email addresses in these domains can log in or register. This is useful for restricting access to specific organizations or groups.
+
 #### `field_map`
 - **Default:** *(empty)*
 - **Description:** Maps OIDC claims to WireGuard Portal user fields. 
@@ -432,6 +440,10 @@ Below are the properties for each OAuth provider entry inside `auth.oauth`:
 #### `scopes`
 - **Default:** *(empty)*
 - **Description:** A list of OAuth scopes.
+
+#### `allowed_domains`
+- **Default:** *(empty)*
+- **Description:** A list of allowlisted domains. Only users with email addresses in these domains can log in or register. This is useful for restricting access to specific organizations or groups.
 
 #### `field_map`
 - **Default:** *(empty)*
@@ -576,7 +588,8 @@ Without a valid `external_url`, the login process may fail due to CSRF protectio
 
 ### `listening_address`
 - **Default:** `:8888`
-- **Description:** The listening port of the web server.
+- **Description:** The listening address and port for the web server (e.g., `:8888` to bind on all interfaces or `127.0.0.1:8888` to bind only on the loopback interface).
+  Ensure that access to WireGuard Portal is protected against unauthorized access, especially if binding to all interfaces.
 
 ### `external_url`
 - **Default:** `http://localhost:8888`
@@ -606,6 +619,10 @@ Without a valid `external_url`, the login process may fail due to CSRF protectio
 ### `request_logging`
 - **Default:** `false`
 - **Description:** Log all HTTP requests.
+
+### `expose_host_info`
+- **Default:** `false`
+- **Description:** Expose the hostname and version of the WireGuard Portal server in an HTTP header. This is useful for debugging but may expose sensitive information.
 
 ### `cert_file`
 - **Default:** *(empty)*
