@@ -222,10 +222,6 @@ func (m Manager) CreatePeer(ctx context.Context, peer *domain.Peer) (*domain.Pee
 	if !m.cfg.Core.StorePrivateKeys {
 		peer.Interface.PrivateKey = ""
 	}
-
-	if !m.cfg.Core.StorePrivateKeys {
-		peer.Interface.PrivateKey = ""
-	}
 	err = m.savePeers(ctx, peer)
 	if err != nil {
 		return nil, fmt.Errorf("creation failure: %w", err)
