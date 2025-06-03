@@ -69,7 +69,8 @@ type Manager struct {
 	wg          WireguardDatabaseRepo
 }
 
-// NewMailManager creates a new mail manager.
+// NewMailManager initializes and returns a new Manager for handling WireGuard configuration email operations.
+// Returns an error if the template handler cannot be initialized.
 func NewMailManager(
 	cfg *config.Config,
 	mailer Mailer,
@@ -199,6 +200,8 @@ func (m Manager) sendPeerEmail(ctx context.Context, linkOnly bool, user *domain.
 	return nil
 }
 
+// generatePeerQr creates a QR code image from WireGuard configuration data, excluding comment lines.
+// The resulting QR code is returned as an io.Reader containing a compressed PNG image.
 func generatePeerQr(cfgData io.Reader) (io.Reader, error) {
 	sb := strings.Builder{}
 	scanner := bufio.NewScanner(cfgData)
