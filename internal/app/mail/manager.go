@@ -1,10 +1,16 @@
 package mail
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"log/slog"
+	"strings"
+
+	"github.com/yeqown/go-qrcode/v2"
+	"github.com/yeqown/go-qrcode/writer/compressed"
 
 	"github.com/h44z/wg-portal/internal/config"
 	"github.com/h44z/wg-portal/internal/domain"
@@ -89,7 +95,7 @@ func NewMailManager(
 }
 
 // SendPeerEmail sends an email to the user linked to the given peers.
-func (m Manager) SendPeerEmail(ctx context.Context, linkOnly bool, peers ...domain.PeerIdentifier) error {
+func (m Manager) SendPeerEmail(ctx context.Context, linkOnly bool, privKeys map[string]string, peers ...domain.PeerIdentifier) error {
 	for _, peerId := range peers {
 		peer, err := m.wg.GetPeer(ctx, peerId)
 		if err != nil {
@@ -114,6 +120,10 @@ func (m Manager) SendPeerEmail(ctx context.Context, linkOnly bool, peers ...doma
 				"reason", "unable to fetch user",
 				"error", err)
 			continue
+		}
+
+		if pk, ok := privKeys[string(peerId)]; ok {
+			peer.Interface.PrivateKey = pk
 		}
 
 		if user.Email == "" {
@@ -148,14 +158,14 @@ func (m Manager) sendPeerEmail(ctx context.Context, linkOnly bool, user *domain.
 		}
 
 	} else {
-		peerConfig, err := m.configFiles.GetPeerConfig(ctx, peer.Identifier)
+		peerConfig, err := m.tplHandler.GetPeerConfig(peer)
 		if err != nil {
-			return fmt.Errorf("failed to fetch peer config for %s: %w", peer.Identifier, err)
+			return fmt.Errorf("failed to get peer config for %s: %w", peer.Identifier, err)
 		}
 
-		peerConfigQr, err := m.configFiles.GetPeerConfigQrCode(ctx, peer.Identifier)
+		peerConfigQr, err := generatePeerQr(peerConfig)
 		if err != nil {
-			return fmt.Errorf("failed to fetch peer config QR code for %s: %w", peer.Identifier, err)
+			return fmt.Errorf("failed to generate peer config QR code for %s: %w", peer.Identifier, err)
 		}
 
 		txtMail, htmlMail, err = m.tplHandler.GetConfigMailWithAttachment(user, configName, qrName)
@@ -187,4 +197,33 @@ func (m Manager) sendPeerEmail(ctx context.Context, linkOnly bool, user *domain.
 	}
 
 	return nil
+}
+
+func generatePeerQr(cfgData io.Reader) (io.Reader, error) {
+	sb := strings.Builder{}
+	scanner := bufio.NewScanner(cfgData)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if !strings.HasPrefix(line, "#") {
+			sb.WriteString(line)
+			sb.WriteString("\n")
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	code, err := qrcode.NewWith(sb.String(), qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionLow), qrcode.WithEncodingMode(qrcode.EncModeByte))
+	if err != nil {
+		return nil, err
+	}
+
+	buf := bytes.NewBuffer(nil)
+	wr := nopCloser{Writer: buf}
+	option := compressed.Option{Padding: 8, BlockSize: 4}
+	qrWriter := compressed.NewWithWriter(wr, &option)
+	if err := code.Save(qrWriter); err != nil {
+		return nil, err
+	}
+	return buf, nil
 }

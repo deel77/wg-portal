@@ -388,6 +388,10 @@
         "header-crypto": "加密",
         "header-hooks": "Hooks (在节点执行)",
         "header-state": "状态",
+        "info-client-keygen": "密钥对在您的浏览器中生成，不会发送到服务器。",
+        "info-server-keygen": "密钥对在服务器端生成。",
+        "info-not-saved": "私钥不会存储在服务器上，请立即保存，否则将无法再次获取。",
+        "info-safety": "最安全的做法是仅在自己的设备上保存私钥。",
         "display-name": {
           "label": "显示名称",
           "placeholder": "节点的描述性名称"

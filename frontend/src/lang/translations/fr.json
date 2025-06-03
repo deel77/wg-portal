@@ -412,6 +412,10 @@
       "header-crypto": "Cryptographie",
       "header-hooks": "Hooks (exécutés sur le pair)",
       "header-state": "État",
+      "info-client-keygen": "La paire de clés est générée dans votre navigateur et n'est jamais envoyée au serveur.",
+      "info-server-keygen": "La paire de clés est générée côté serveur.",
+      "info-not-saved": "La clé privée n'est pas enregistrée sur le serveur. Sauvegardez-la maintenant car elle ne pourra pas être récupérée plus tard.",
+      "info-safety": "Pour une sécurité optimale, conservez votre clé privée uniquement sur votre appareil.",
       "display-name": {
         "label": "Nom d'affichage",
         "placeholder": "Le nom descriptif du pair"

@@ -183,8 +183,9 @@ func NewDomainPeerCreationRequest(src *MultiPeerRequest) *domain.PeerCreationReq
 }
 
 type PeerMailRequest struct {
-	Identifiers []string `json:"Identifiers"`
-	LinkOnly    bool     `json:"LinkOnly"`
+	Identifiers []string          `json:"Identifiers"`
+	LinkOnly    bool              `json:"LinkOnly"`
+	PrivateKeys map[string]string `json:"PrivateKeys"`
 }
 
 type PeerStats struct {

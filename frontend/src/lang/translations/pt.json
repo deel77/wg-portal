@@ -448,6 +448,10 @@
       "header-crypto": "Criptografia",
       "header-hooks": "Hooks (Executados no Peer)",
       "header-state": "Estado",
+      "info-client-keygen": "O par de chaves é gerado no seu navegador e nunca enviado ao servidor.",
+      "info-server-keygen": "O par de chaves é gerado no servidor.",
+      "info-not-saved": "A chave privada não é armazenada no servidor. Guarde-a agora pois não poderá recuperá-la depois.",
+      "info-safety": "Para maior segurança mantenha a chave privada apenas no seu dispositivo.",
       "display-name": {
         "label": "Nome de Exibição",
         "placeholder": "O nome descritivo para o peer"

@@ -26,6 +26,8 @@ type Config struct {
 		SelfProvisioningAllowed     bool `yaml:"self_provisioning_allowed"`
 		ImportExisting              bool `yaml:"import_existing"`
 		RestoreState                bool `yaml:"restore_state"`
+		ClientSidePeerKeygen        bool `yaml:"client_side_peer_keygen"`
+		StorePrivateKeys            bool `yaml:"store_private_keys"`
 	} `yaml:"core"`
 
 	Advanced struct {
@@ -78,6 +80,8 @@ func (c *Config) LogStartupValues() {
 		"selfProvisioningAllowed", c.Core.SelfProvisioningAllowed,
 		"importExisting", c.Core.ImportExisting,
 		"restoreState", c.Core.RestoreState,
+		"clientSidePeerKeygen", c.Core.ClientSidePeerKeygen,
+		"storePrivateKeys", c.Core.StorePrivateKeys,
 		"useIpV6", c.Advanced.UseIpV6,
 		"collectInterfaceData", c.Statistics.CollectInterfaceData,
 		"collectPeerData", c.Statistics.CollectPeerData,
@@ -111,6 +115,8 @@ func defaultConfig() *Config {
 	cfg.Core.SelfProvisioningAllowed = false
 	cfg.Core.ReEnablePeerAfterUserEnable = true
 	cfg.Core.DeletePeerAfterUserDeleted = false
+	cfg.Core.ClientSidePeerKeygen = false
+	cfg.Core.StorePrivateKeys = true
 
 	cfg.Database = DatabaseConfig{
 		Type: "sqlite",

@@ -103,9 +103,13 @@ func (m Manager) PreparePeer(ctx context.Context, id domain.InterfaceIdentifier)
 		return nil, fmt.Errorf("unable to get fresh ip addresses: %w", err)
 	}
 
-	kp, err := domain.NewFreshKeypair()
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate keys: %w", err)
+	var kp domain.KeyPair
+	if !m.cfg.Core.ClientSidePeerKeygen {
+		var err error
+		kp, err = domain.NewFreshKeypair()
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate keys: %w", err)
+		}
 	}
 
 	pk, err := domain.NewPreSharedKey()
@@ -119,6 +123,9 @@ func (m Manager) PreparePeer(ctx context.Context, id domain.InterfaceIdentifier)
 	}
 
 	peerId := domain.PeerIdentifier(kp.PublicKey)
+	if m.cfg.Core.ClientSidePeerKeygen {
+		peerId = ""
+	}
 	freshPeer := &domain.Peer{
 		BaseModel: domain.BaseModel{
 			CreatedBy: string(currentUser.Id),
@@ -212,6 +219,13 @@ func (m Manager) CreatePeer(ctx context.Context, peer *domain.Peer) (*domain.Pee
 		return nil, fmt.Errorf("creation not allowed: %w", err)
 	}
 
+	if !m.cfg.Core.StorePrivateKeys {
+		peer.Interface.PrivateKey = ""
+	}
+
+	if !m.cfg.Core.StorePrivateKeys {
+		peer.Interface.PrivateKey = ""
+	}
 	err = m.savePeers(ctx, peer)
 	if err != nil {
 		return nil, fmt.Errorf("creation failure: %w", err)
@@ -251,6 +265,12 @@ func (m Manager) CreateMultiplePeers(
 		}
 
 		newPeers = append(newPeers, freshPeer)
+	}
+
+	if !m.cfg.Core.StorePrivateKeys {
+		for i := range newPeers {
+			newPeers[i].Interface.PrivateKey = ""
+		}
 	}
 
 	err := m.savePeers(ctx, newPeers...)
@@ -316,6 +336,9 @@ func (m Manager) UpdatePeer(ctx context.Context, peer *domain.Peer) (*domain.Pee
 				existingPeer.Identifier, peer.Identifier, err)
 		}
 
+		if !m.cfg.Core.StorePrivateKeys {
+			peer.Interface.PrivateKey = ""
+		}
 		// save new peer
 		err = m.savePeers(ctx, peer)
 		if err != nil {
@@ -326,6 +349,9 @@ func (m Manager) UpdatePeer(ctx context.Context, peer *domain.Peer) (*domain.Pee
 		// publish event
 		m.bus.Publish(app.TopicPeerIdentifierUpdated, existingPeer.Identifier, peer.Identifier)
 	} else { // normal update
+		if !m.cfg.Core.StorePrivateKeys {
+			peer.Interface.PrivateKey = ""
+		}
 		err = m.savePeers(ctx, peer)
 		if err != nil {
 			return nil, fmt.Errorf("update failure: %w", err)

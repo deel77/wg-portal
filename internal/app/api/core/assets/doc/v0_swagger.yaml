@@ -330,6 +330,9 @@ definitions:
         type: array
       LinkOnly:
         type: boolean
+      PrivateKeys:
+        additionalProperties:
+          type: string
     type: object
   model.PeerStatData:
     properties:
@@ -388,6 +391,10 @@ definitions:
       SelfProvisioning:
         type: boolean
       WebAuthnEnabled:
+        type: boolean
+      ClientSidePeerKeygen:
+        type: boolean
+      StorePrivateKeys:
         type: boolean
     type: object
   model.User:

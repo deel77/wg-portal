@@ -24,6 +24,8 @@ core:
   self_provisioning_allowed: false
   import_existing: true
   restore_state: true
+  client_side_peer_keygen: false
+  store_private_keys: true
 
 advanced:
   log_level: info
@@ -160,6 +162,14 @@ More advanced options are found in the subsequent `Advanced` section.
 ### `restore_state`
 - **Default:** `true`
 - **Description:** Restore the WireGuard interface states (up/down) that existed before WireGuard Portal started.
+
+### `client_side_peer_keygen`
+- **Default:** `false`
+- **Description:** Generate WireGuard peer key pairs in the user's browser instead of on the server.
+
+### `store_private_keys`
+- **Default:** `true`
+- **Description:** Persist peer private keys on the server. If disabled, only the public key is stored.
 
 ---
 

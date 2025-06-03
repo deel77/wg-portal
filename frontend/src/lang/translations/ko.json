@@ -428,6 +428,10 @@
         "header-crypto": "암호화",
         "header-hooks": "후크 (피어에서 실행됨)",
         "header-state": "상태",
+        "info-client-keygen": "키 쌍이 브라우저에서 생성되며 서버로 전송되지 않습니다.",
+        "info-server-keygen": "키 쌍이 서버에서 생성됩니다.",
+        "info-not-saved": "개인 키는 서버에 저장되지 않습니다. 나중에 다시 받을 수 없으므로 지금 저장하세요.",
+        "info-safety": "개인 키를 자신의 장치에만 보관하는 것이 가장 안전합니다.",
         "display-name": {
           "label": "표시 이름",
           "placeholder": "피어에 대한 설명적인 이름"

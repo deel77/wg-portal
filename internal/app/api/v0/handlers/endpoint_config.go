@@ -99,7 +99,9 @@ func (e ConfigEndpoint) handleSettingsGet() http.HandlerFunc {
 		// For anonymous users, we return the settings object with minimal information
 		if sessionUser.Id == domain.CtxUnknownUserId || sessionUser.Id == "" {
 			respond.JSON(w, http.StatusOK, model.Settings{
-				WebAuthnEnabled: e.cfg.Auth.WebAuthn.Enabled,
+				WebAuthnEnabled:      e.cfg.Auth.WebAuthn.Enabled,
+				ClientSidePeerKeygen: e.cfg.Core.ClientSidePeerKeygen,
+				StorePrivateKeys:     e.cfg.Core.StorePrivateKeys,
 			})
 		} else {
 			respond.JSON(w, http.StatusOK, model.Settings{
@@ -109,6 +111,8 @@ func (e ConfigEndpoint) handleSettingsGet() http.HandlerFunc {
 				ApiAdminOnly:              e.cfg.Advanced.ApiAdminOnly,
 				WebAuthnEnabled:           e.cfg.Auth.WebAuthn.Enabled,
 				MinPasswordLength:         e.cfg.Auth.MinPasswordLength,
+				ClientSidePeerKeygen:      e.cfg.Core.ClientSidePeerKeygen,
+				StorePrivateKeys:          e.cfg.Core.StorePrivateKeys,
 			})
 		}
 	}
