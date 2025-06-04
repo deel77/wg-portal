@@ -2153,6 +2153,12 @@
                 },
                 "LinkOnly": {
                     "type": "boolean"
+                },
+                "PrivateKeys": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
                 }
             }
         },
@@ -2243,6 +2249,8 @@
                 "WebAuthnEnabled": {
                     "type": "boolean"
                 }
+                ,"ClientSidePeerKeygen": {"type": "boolean"}
+                ,"StorePrivateKeys": {"type": "boolean"}
             }
         },
         "model.User": {

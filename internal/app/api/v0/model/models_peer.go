@@ -175,6 +175,7 @@ type MultiPeerRequest struct {
 	Suffix      string   `json:"Suffix"`
 }
 
+// NewDomainPeerCreationRequest converts a MultiPeerRequest to a domain-layer PeerCreationRequest.
 func NewDomainPeerCreationRequest(src *MultiPeerRequest) *domain.PeerCreationRequest {
 	return &domain.PeerCreationRequest{
 		UserIdentifiers: src.Identifiers,
@@ -183,8 +184,9 @@ func NewDomainPeerCreationRequest(src *MultiPeerRequest) *domain.PeerCreationReq
 }
 
 type PeerMailRequest struct {
-	Identifiers []string `json:"Identifiers"`
-	LinkOnly    bool     `json:"LinkOnly"`
+	Identifiers []string          `json:"Identifiers"`
+	LinkOnly    bool              `json:"LinkOnly"`
+	PrivateKeys map[string]string `json:"PrivateKeys"`
 }
 
 type PeerStats struct {

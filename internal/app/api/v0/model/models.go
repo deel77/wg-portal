@@ -12,4 +12,6 @@ type Settings struct {
 	ApiAdminOnly              bool `json:"ApiAdminOnly"`
 	WebAuthnEnabled           bool `json:"WebAuthnEnabled"`
 	MinPasswordLength         int  `json:"MinPasswordLength"`
+	ClientSidePeerKeygen      bool `json:"ClientSidePeerKeygen"`
+	StorePrivateKeys          bool `json:"StorePrivateKeys"`
 }

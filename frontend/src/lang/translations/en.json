@@ -480,6 +480,10 @@
       "header-crypto": "Cryptography",
       "header-hooks": "Hooks (Executed on Peer)",
       "header-state": "State",
+      "info-client-keygen": "Key pair is generated in your browser and never sent to the server.",
+      "info-server-keygen": "Key pair is generated on the server side.",
+      "info-not-saved": "Private key is not stored on the server. Save it now because it cannot be retrieved later.",
+      "info-safety": "For best security generate and keep your private key only on your device.",
       "display-name": {
         "label": "Display Name",
         "placeholder": "The descriptive name for the peer"

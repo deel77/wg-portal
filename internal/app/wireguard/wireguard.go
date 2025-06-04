@@ -117,7 +117,7 @@ func (m Manager) connectToMessageBus() {
 }
 
 func (m Manager) handleUserCreationEvent(user domain.User) {
-	if !m.cfg.Core.CreateDefaultPeerOnCreation {
+	if !m.cfg.Core.CreateDefaultPeerOnCreation || m.cfg.Core.ClientSidePeerKeygen {
 		return
 	}
 
@@ -138,7 +138,7 @@ func (m Manager) handleUserCreationEvent(user domain.User) {
 }
 
 func (m Manager) handleUserLoginEvent(userId domain.UserIdentifier) {
-	if !m.cfg.Core.CreateDefaultPeer {
+	if !m.cfg.Core.CreateDefaultPeer || m.cfg.Core.ClientSidePeerKeygen {
 		return
 	}
 

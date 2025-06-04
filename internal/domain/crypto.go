@@ -2,6 +2,8 @@ package domain
 
 import (
 	"encoding/base64"
+	"fmt"
+	"strings"
 
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -64,4 +66,15 @@ func PublicKeyFromPrivateKey(key string) string {
 		return ""
 	}
 	return privKey.PublicKey().String()
+}
+
+// ValidatePrivateKey checks if the provided private key is a valid WireGuard key.
+func ValidatePrivateKey(key string) error {
+	if key == "" {
+		return fmt.Errorf("private key is empty")
+	}
+	if _, err := wgtypes.ParseKey(strings.TrimSpace(key)); err != nil {
+		return fmt.Errorf("invalid private key: %w", err)
+	}
+	return nil
 }

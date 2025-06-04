@@ -32,7 +32,7 @@ type PeerServiceConfigFileManager interface {
 }
 
 type PeerServiceMailManager interface {
-	SendPeerEmail(ctx context.Context, linkOnly bool, peers ...domain.PeerIdentifier) error
+	SendPeerEmail(ctx context.Context, linkOnly bool, privKeys map[string]string, peers ...domain.PeerIdentifier) error
 }
 
 // endregion dependencies
@@ -103,8 +103,8 @@ func (p PeerService) GetPeerConfigQrCode(ctx context.Context, id domain.PeerIden
 	return p.configFile.GetPeerConfigQrCode(ctx, id)
 }
 
-func (p PeerService) SendPeerEmail(ctx context.Context, linkOnly bool, peers ...domain.PeerIdentifier) error {
-	return p.mailer.SendPeerEmail(ctx, linkOnly, peers...)
+func (p PeerService) SendPeerEmail(ctx context.Context, linkOnly bool, privKeys map[string]string, peers ...domain.PeerIdentifier) error {
+	return p.mailer.SendPeerEmail(ctx, linkOnly, privKeys, peers...)
 }
 
 func (p PeerService) GetPeerStats(ctx context.Context, id domain.InterfaceIdentifier) ([]domain.PeerStatus, error) {

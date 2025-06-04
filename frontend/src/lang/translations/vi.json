@@ -389,6 +389,10 @@
       "header-crypto": "Mã hóa",
       "header-hooks": "Kẹp (Thực thi trên Peer)",
       "header-state": "Trạng thái",
+      "info-client-keygen": "Cặp khóa được tạo trong trình duyệt của bạn và không gửi lên máy chủ.",
+      "info-server-keygen": "Cặp khóa được tạo trên máy chủ.",
+      "info-not-saved": "Khóa riêng không được lưu trên máy chủ. Hãy lưu lại ngay vì bạn sẽ không thể lấy lại sau này.",
+      "info-safety": "An toàn nhất là chỉ giữ khóa riêng trên thiết bị của bạn.",
       "display-name": {
         "label": "Tên Hiển thị",
         "placeholder": "Tên mô tả cho peer"

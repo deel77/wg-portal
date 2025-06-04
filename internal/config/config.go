@@ -26,6 +26,8 @@ type Config struct {
 		SelfProvisioningAllowed     bool `yaml:"self_provisioning_allowed"`
 		ImportExisting              bool `yaml:"import_existing"`
 		RestoreState                bool `yaml:"restore_state"`
+		ClientSidePeerKeygen        bool `yaml:"client_side_peer_keygen"`
+		StorePrivateKeys            bool `yaml:"store_private_keys"`
 	} `yaml:"core"`
 
 	Advanced struct {
@@ -78,6 +80,8 @@ func (c *Config) LogStartupValues() {
 		"selfProvisioningAllowed", c.Core.SelfProvisioningAllowed,
 		"importExisting", c.Core.ImportExisting,
 		"restoreState", c.Core.RestoreState,
+		"clientSidePeerKeygen", c.Core.ClientSidePeerKeygen,
+		"storePrivateKeys", c.Core.StorePrivateKeys,
 		"useIpV6", c.Advanced.UseIpV6,
 		"collectInterfaceData", c.Statistics.CollectInterfaceData,
 		"collectPeerData", c.Statistics.CollectPeerData,
@@ -96,7 +100,7 @@ func (c *Config) LogStartupValues() {
 	)
 }
 
-// defaultConfig returns the default configuration
+// defaultConfig returns a Config instance populated with default values for all configuration fields, including core settings, database, web server, advanced options, statistics, mail, webhook, and authentication.
 func defaultConfig() *Config {
 	cfg := &Config{}
 
@@ -111,6 +115,8 @@ func defaultConfig() *Config {
 	cfg.Core.SelfProvisioningAllowed = false
 	cfg.Core.ReEnablePeerAfterUserEnable = true
 	cfg.Core.DeletePeerAfterUserDeleted = false
+	cfg.Core.ClientSidePeerKeygen = false
+	cfg.Core.StorePrivateKeys = true
 
 	cfg.Database = DatabaseConfig{
 		Type: "sqlite",

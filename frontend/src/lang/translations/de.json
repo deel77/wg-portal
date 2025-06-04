@@ -479,6 +479,10 @@
       "header-crypto": "Kryptografie",
       "header-hooks": "Hooks (beim Peer ausgeführt)",
       "header-state": "Status",
+      "info-client-keygen": "Schlüsselpaar wird in Ihrem Browser erzeugt und nicht an den Server gesendet.",
+      "info-server-keygen": "Schlüsselpaar wird serverseitig erzeugt.",
+      "info-not-saved": "Der private Schlüssel wird nicht auf dem Server gespeichert. Speichern Sie ihn jetzt, da er später nicht erneut abgerufen werden kann.",
+      "info-safety": "Am sichersten ist es, den privaten Schlüssel nur auf Ihrem Gerät zu behalten.",
       "display-name": {
         "label": "Anzeigename",
         "placeholder": "Der beschreibende Name für den Peer"

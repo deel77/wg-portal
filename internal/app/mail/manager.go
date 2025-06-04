@@ -1,14 +1,29 @@
 package mail
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"log/slog"
+	"strings"
+
+	"github.com/yeqown/go-qrcode/v2"
+	"github.com/yeqown/go-qrcode/writer/compressed"
 
 	"github.com/h44z/wg-portal/internal/config"
 	"github.com/h44z/wg-portal/internal/domain"
 )
+
+// nopCloser is used when a writer needs to satisfy io.WriteCloser but does not
+// require a close operation.
+type nopCloser struct {
+	io.Writer
+}
+
+// Close is a no-op for the nopCloser.
+func (nopCloser) Close() error { return nil }
 
 // region dependencies
 
@@ -63,7 +78,8 @@ type Manager struct {
 	wg          WireguardDatabaseRepo
 }
 
-// NewMailManager creates a new mail manager.
+// NewMailManager initializes and returns a new Manager for handling WireGuard configuration email operations.
+// Returns an error if the template handler cannot be initialized.
 func NewMailManager(
 	cfg *config.Config,
 	mailer Mailer,
@@ -89,11 +105,14 @@ func NewMailManager(
 }
 
 // SendPeerEmail sends an email to the user linked to the given peers.
-func (m Manager) SendPeerEmail(ctx context.Context, linkOnly bool, peers ...domain.PeerIdentifier) error {
+func (m Manager) SendPeerEmail(ctx context.Context, linkOnly bool, privKeys map[string]string, peers ...domain.PeerIdentifier) error {
 	for _, peerId := range peers {
-		peer, err := m.wg.GetPeer(ctx, peerId)
+			if err := domain.ValidatePrivateKey(pk); err != nil {
+				return fmt.Errorf("private key validation failed for %s: %w", peerId, err)
+			}
+		peerConfig, err := m.configFiles.GetPeerConfig(ctx, peer.Identifier)
 		if err != nil {
-			return fmt.Errorf("failed to fetch peer %s: %w", peerId, err)
+			return fmt.Errorf("failed to fetch peer config for %s: %w", peer.Identifier, err)
 		}
 
 		if err := domain.ValidateUserAccessRights(ctx, peer.UserIdentifier); err != nil {
@@ -114,6 +133,10 @@ func (m Manager) SendPeerEmail(ctx context.Context, linkOnly bool, peers ...doma
 				"reason", "unable to fetch user",
 				"error", err)
 			continue
+		}
+
+		if pk, ok := privKeys[string(peerId)]; ok {
+			peer.Interface.PrivateKey = pk
 		}
 
 		if user.Email == "" {
@@ -148,14 +171,14 @@ func (m Manager) sendPeerEmail(ctx context.Context, linkOnly bool, user *domain.
 		}
 
 	} else {
-		peerConfig, err := m.configFiles.GetPeerConfig(ctx, peer.Identifier)
+		peerConfig, err := m.tplHandler.GetPeerConfig(peer)
 		if err != nil {
-			return fmt.Errorf("failed to fetch peer config for %s: %w", peer.Identifier, err)
+			return fmt.Errorf("failed to get peer config for %s: %w", peer.Identifier, err)
 		}
 
-		peerConfigQr, err := m.configFiles.GetPeerConfigQrCode(ctx, peer.Identifier)
+		peerConfigQr, err := generatePeerQr(peerConfig)
 		if err != nil {
-			return fmt.Errorf("failed to fetch peer config QR code for %s: %w", peer.Identifier, err)
+			return fmt.Errorf("failed to generate peer config QR code for %s: %w", peer.Identifier, err)
 		}
 
 		txtMail, htmlMail, err = m.tplHandler.GetConfigMailWithAttachment(user, configName, qrName)
@@ -169,11 +192,16 @@ func (m Manager) sendPeerEmail(ctx context.Context, linkOnly bool, user *domain.
 			Data:        peerConfig,
 			Embedded:    false,
 		})
-		mailOptions.Attachments = append(mailOptions.Attachments, domain.MailAttachment{
-			Name:        qrName,
-			ContentType: "image/png",
-			Data:        peerConfigQr,
-			Embedded:    true,
+		if line != "" && !strings.HasPrefix(line, "#") {
+		return nil, fmt.Errorf("failed to scan config data: %w", err)
+	}
+
+	cfg := strings.TrimSpace(sb.String())
+	if cfg == "" {
+		return nil, fmt.Errorf("peer configuration is empty")
+	code, err := qrcode.NewWith(cfg, qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionLow), qrcode.WithEncodingMode(qrcode.EncModeByte))
+		return nil, fmt.Errorf("failed to create QR code: %w", err)
+		return nil, fmt.Errorf("failed to save QR code image: %w", err)
 		})
 	}
 
@@ -187,4 +215,35 @@ func (m Manager) sendPeerEmail(ctx context.Context, linkOnly bool, user *domain.
 	}
 
 	return nil
+}
+
+// generatePeerQr creates a QR code image from WireGuard configuration data, excluding comment lines.
+// The resulting QR code is returned as an io.Reader containing a compressed PNG image.
+func generatePeerQr(cfgData io.Reader) (io.Reader, error) {
+	sb := strings.Builder{}
+	scanner := bufio.NewScanner(cfgData)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if !strings.HasPrefix(line, "#") {
+			sb.WriteString(line)
+			sb.WriteString("\n")
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	code, err := qrcode.NewWith(sb.String(), qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionLow), qrcode.WithEncodingMode(qrcode.EncModeByte))
+	if err != nil {
+		return nil, err
+	}
+
+	buf := bytes.NewBuffer(nil)
+	wr := nopCloser{Writer: buf}
+	option := compressed.Option{Padding: 8, BlockSize: 4}
+	qrWriter := compressed.NewWithWriter(wr, &option)
+	if err := code.Save(qrWriter); err != nil {
+		return nil, err
+	}
+	return buf, nil
 }

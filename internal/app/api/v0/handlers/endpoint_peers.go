@@ -38,7 +38,7 @@ type PeerService interface {
 	// GetPeerConfigQrCode returns the peer configuration as qr code for the given id.
 	GetPeerConfigQrCode(ctx context.Context, id domain.PeerIdentifier) (io.Reader, error)
 	// SendPeerEmail sends the peer configuration via email.
-	SendPeerEmail(ctx context.Context, linkOnly bool, peers ...domain.PeerIdentifier) error
+	SendPeerEmail(ctx context.Context, linkOnly bool, privKeys map[string]string, peers ...domain.PeerIdentifier) error
 	// GetPeerStats returns the peer stats for the given interface.
 	GetPeerStats(ctx context.Context, id domain.InterfaceIdentifier) ([]domain.PeerStatus, error)
 }
@@ -464,7 +464,7 @@ func (e PeerEndpoint) handleEmailPost() http.HandlerFunc {
 		for i := range req.Identifiers {
 			peerIds[i] = domain.PeerIdentifier(req.Identifiers[i])
 		}
-		if err := e.peerService.SendPeerEmail(r.Context(), req.LinkOnly, peerIds...); err != nil {
+		if err := e.peerService.SendPeerEmail(r.Context(), req.LinkOnly, req.PrivateKeys, peerIds...); err != nil {
 			respond.JSON(w, http.StatusInternalServerError,
 				model.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 			return
