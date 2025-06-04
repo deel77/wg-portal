@@ -16,6 +16,15 @@ import (
 	"github.com/h44z/wg-portal/internal/domain"
 )
 
+// nopCloser is used when a writer needs to satisfy io.WriteCloser but does not
+// require a close operation.
+type nopCloser struct {
+	io.Writer
+}
+
+// Close is a no-op for the nopCloser.
+func (nopCloser) Close() error { return nil }
+
 // region dependencies
 
 type Mailer interface {
@@ -180,11 +189,16 @@ func (m Manager) sendPeerEmail(ctx context.Context, linkOnly bool, user *domain.
 			Data:        peerConfig,
 			Embedded:    false,
 		})
-		mailOptions.Attachments = append(mailOptions.Attachments, domain.MailAttachment{
-			Name:        qrName,
-			ContentType: "image/png",
-			Data:        peerConfigQr,
-			Embedded:    true,
+		if line != "" && !strings.HasPrefix(line, "#") {
+		return nil, fmt.Errorf("failed to scan config data: %w", err)
+	}
+
+	cfg := strings.TrimSpace(sb.String())
+	if cfg == "" {
+		return nil, fmt.Errorf("peer configuration is empty")
+	code, err := qrcode.NewWith(cfg, qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionLow), qrcode.WithEncodingMode(qrcode.EncModeByte))
+		return nil, fmt.Errorf("failed to create QR code: %w", err)
+		return nil, fmt.Errorf("failed to save QR code image: %w", err)
 		})
 	}
 
