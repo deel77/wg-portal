@@ -100,7 +100,7 @@ func (c *Config) LogStartupValues() {
 	)
 }
 
-// defaultConfig returns the default configuration
+// defaultConfig returns a Config instance populated with default values for all configuration fields, including core settings, database, web server, advanced options, statistics, mail, webhook, and authentication.
 func defaultConfig() *Config {
 	cfg := &Config{}
 

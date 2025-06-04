@@ -175,6 +175,7 @@ type MultiPeerRequest struct {
 	Suffix      string   `json:"Suffix"`
 }
 
+// NewDomainPeerCreationRequest converts a MultiPeerRequest to a domain-layer PeerCreationRequest.
 func NewDomainPeerCreationRequest(src *MultiPeerRequest) *domain.PeerCreationRequest {
 	return &domain.PeerCreationRequest{
 		UserIdentifiers: src.Identifiers,
