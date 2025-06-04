@@ -107,9 +107,12 @@ func NewMailManager(
 // SendPeerEmail sends an email to the user linked to the given peers.
 func (m Manager) SendPeerEmail(ctx context.Context, linkOnly bool, privKeys map[string]string, peers ...domain.PeerIdentifier) error {
 	for _, peerId := range peers {
-		peer, err := m.wg.GetPeer(ctx, peerId)
+			if err := domain.ValidatePrivateKey(pk); err != nil {
+				return fmt.Errorf("private key validation failed for %s: %w", peerId, err)
+			}
+		peerConfig, err := m.configFiles.GetPeerConfig(ctx, peer.Identifier)
 		if err != nil {
-			return fmt.Errorf("failed to fetch peer %s: %w", peerId, err)
+			return fmt.Errorf("failed to fetch peer config for %s: %w", peer.Identifier, err)
 		}
 
 		if err := domain.ValidateUserAccessRights(ctx, peer.UserIdentifier); err != nil {

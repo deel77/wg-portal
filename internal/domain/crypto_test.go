@@ -54,3 +54,13 @@ func TestPublicKeyFromPrivateKeyReturnsCorrectPublicKey(t *testing.T) {
 func TestPublicKeyFromPrivateKeyReturnsEmptyStringOnInvalidKey(t *testing.T) {
 	assert.Equal(t, "", PublicKeyFromPrivateKey("invalidKey"))
 }
+
+func TestValidatePrivateKeyReturnsNilForValidKey(t *testing.T) {
+	key, _ := wgtypes.GeneratePrivateKey()
+	assert.NoError(t, ValidatePrivateKey(key.String()))
+}
+
+func TestValidatePrivateKeyReturnsErrorForInvalidKey(t *testing.T) {
+	err := ValidatePrivateKey("invalid")
+	assert.Error(t, err)
+}
